@@ -1,0 +1,57 @@
+# Security
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# Secrets
+.env*
+*.secret
+secrets/
+
+# Docker Compose generated file
+docker-compose.yaml
+
+# Sensitive token files
+tokens.json
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+venv/
+env/
+ENV/
+path/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Local environment files
+.env
+.env.local
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+path

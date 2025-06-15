@@ -1,0 +1,10 @@
+[
+  {
+    "name": "service1",
+    "token": "ghu_your_github_token_here"
+  },
+  {
+    "name": "service2", 
+    "token": "ghu_another_github_token_here"
+  }
+]

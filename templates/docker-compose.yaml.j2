@@ -1,0 +1,44 @@
+networks:
+  traefik-net:
+    driver: bridge
+
+services:
+  traefik:
+    image: traefik:v3.1
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.network=traefik-net"
+      - "--entrypoints.web.address=:80"
+      - "--log.level=INFO"
+      - "--accesslog=true"
+    ports:
+      - "8001:80"
+      - "8081:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    networks:
+      - traefik-net
+    restart: unless-stopped
+
+{% for service in services %}
+  {{ service.name }}:
+    image: nghyane/copilot-api:latest
+    environment:
+      - GH_TOKEN={{ service.token }}
+    networks:
+      - traefik-net
+    restart: unless-stopped
+    labels:
+      # Enable Traefik for this service
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-net"
+      
+      # Router configuration - all services share the same route for load balancing
+      - "traefik.http.routers.copilot-api.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.copilot-api.entrypoints=web"
+      - "traefik.http.routers.copilot-api.service=copilot-api-loadbalancer"
+      
+      # Service configuration - all instances join the same load balancer
+      - "traefik.http.services.copilot-api-loadbalancer.loadbalancer.server.port=4141"
+{% endfor %}
