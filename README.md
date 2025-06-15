@@ -69,6 +69,21 @@ docker compose up -d
 - **Traefik Dashboard**: http://localhost:8080
 - **Load-Balanced API**: http://localhost/
 
+## 🔒 SSL/HTTPS Configuration
+
+This setup is optimized for use with **Cloudflare** as SSL/TLS proxy:
+
+- **HTTP only** on the server side (port 80)
+- **HTTPS handled by Cloudflare** proxy
+- **No Let's Encrypt** certificates needed
+- **Simplified configuration** without SSL complexity
+
+### Using with Cloudflare:
+1. Point your domain to Cloudflare
+2. Enable Cloudflare proxy (orange cloud)
+3. Set SSL/TLS mode to "Flexible" or "Full"
+4. Access your API via HTTPS through Cloudflare
+
 ## 📝 Configuration
 
 ### Adding/Removing Services

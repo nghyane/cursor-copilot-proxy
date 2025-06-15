@@ -1,9 +1,12 @@
-# Security
+# Security (backup - not used with Cloudflare setup)
 *.pem
 *.key
 *.crt
 *.p12
 *.pfx
+
+# Let's Encrypt backup (not used with Cloudflare)
+letsencrypt.backup/
 
 # Secrets
 .env*

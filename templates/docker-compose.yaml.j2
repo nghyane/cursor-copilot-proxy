@@ -4,7 +4,7 @@ networks:
 
 services:
   traefik:
-    image: traefik:v3.1
+    image: traefik:v3.4
     command:
       - "--api.dashboard=true"
       - "--api.insecure=true"
@@ -14,30 +14,15 @@ services:
       - "--providers.file.filename=/etc/traefik/rr.yml"
       - "--providers.file.watch=true"
       - "--entrypoints.web.address=:80"
-{% if enable_https %}
-      - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
-      - "--certificatesresolvers.letsencrypt.acme.email={{ email }}"
-      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
-      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
-      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
-      - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
-{% endif %}
       - "--log.level=INFO"
       - "--accesslog=true"
       - "--core.defaultRuleSyntax=v3"
     ports:
       - "80:80"
-{% if enable_https %}
-      - "443:443"
-{% endif %}
       - "8080:8080"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "./traefik/rr.yml:/etc/traefik/rr.yml:ro"
-{% if enable_https %}
-      - "./letsencrypt:/letsencrypt"
-{% endif %}
     networks: [traefik-net]
     restart: unless-stopped
 

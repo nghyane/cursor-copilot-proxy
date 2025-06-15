@@ -4,11 +4,6 @@ http:
       rule: {{ rule }}
       entryPoints:
         - web
-{% if enable_https %}
-        - websecure
-      tls:
-        certResolver: letsencrypt
-{% endif %}
       service: copilot-api-lb
 
   services:
