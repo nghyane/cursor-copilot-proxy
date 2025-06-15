@@ -29,7 +29,7 @@ This will:
 #### 1. Clone Project
 ```bash
 git clone https://github.com/nghyane/cursor-copilot-proxy.git
-cd copilot-compose-traefik
+cd cursor-copilot-proxy
 ```
 
 #### 2. Set File Permissions
