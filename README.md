@@ -60,8 +60,8 @@ Edit `tokens.json.example` and save as `tokens.json`:
 
 #### 5. Generate & Run
 ```bash
-python3 generate.py   # Generate docker-compose.yaml from template
-docker compose up -d  # Start containers with Traefik
+python3 generate.py 
+docker compose up -d  
 ```
 
 ## 🌐 Access Points

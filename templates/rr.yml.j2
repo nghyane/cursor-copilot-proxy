@@ -1,0 +1,21 @@
+http:
+  routers:
+    copilot-api:
+      rule: {{ rule }}
+      entryPoints:
+        - web
+{% if enable_https %}
+        - websecure
+      tls:
+        certResolver: letsencrypt
+{% endif %}
+      service: copilot-api-lb
+
+  services:
+    copilot-api-lb:
+      weighted:
+        services:
+{% for s in services %}
+          - name: {{ s.name }}@docker
+            weight: 1
+{% endfor %}

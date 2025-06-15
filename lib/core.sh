@@ -1,28 +1,32 @@
 #!/usr/bin/env bash
 # Core utilities and shared functions
 
-# Colors
-export RED='\033[0;31m'
-export GREEN='\033[0;32m'
-export YELLOW='\033[1;33m'
-export BLUE='\033[0;34m'
-export PURPLE='\033[0;35m'
-export NC='\033[0m'
+# Colors and formatting
+readonly RED='\033[0;31m'
+readonly GREEN='\033[0;32m'
+readonly YELLOW='\033[1;33m'
+readonly BLUE='\033[0;34m'
+readonly PURPLE='\033[0;35m'
+readonly CYAN='\033[0;36m'
+readonly NC='\033[0m'
+
+# Icons
+readonly ICON_INFO="🔧"
+readonly ICON_SUCCESS="✅"
+readonly ICON_WARN="⚠️"
+readonly ICON_ERROR="❌"
+readonly ICON_ROCKET="🚀"
 
 # Logging functions
-log() { echo -e "${BLUE}🔧${NC} $1"; }
-success() { echo -e "${GREEN}✅${NC} $1"; }
-warn() { echo -e "${YELLOW}⚠️${NC} $1"; }
-error() { echo -e "${RED}❌${NC} $1"; }
-info() { echo -e "${PURPLE}📋${NC} $1"; }
+log() { echo -e "${BLUE}${ICON_INFO}${NC} $*"; }
+success() { echo -e "${GREEN}${ICON_SUCCESS}${NC} $*"; }
+warn() { echo -e "${YELLOW}${ICON_WARN}${NC} $*"; }
+error() { echo -e "${RED}${ICON_ERROR}${NC} $*"; }
+info() { echo -e "${PURPLE}📋${NC} $*"; }
 
 # Utility functions
 check_command() {
-    if command -v "$1" >/dev/null 2>&1; then
-        return 0
-    else
-        return 1
-    fi
+    command -v "$1" >/dev/null 2>&1
 }
 
 detect_os() {
@@ -40,7 +44,28 @@ detect_os() {
     esac
 }
 
-# Get script directory
-get_script_dir() {
-    echo "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Error handling
+die() {
+    error "$*"
+    exit 1
+}
+
+# Check if running as root
+is_root() {
+    [[ $EUID -eq 0 ]]
+}
+
+# Spinner for long operations
+spinner() {
+    local pid=$1
+    local delay=0.1
+    local spinstr='|/-\'
+    while [[ "$(ps a | awk '{print $1}' | grep $pid)" ]]; do
+        local temp=${spinstr#?}
+        printf " [%c]  " "$spinstr"
+        local spinstr=$temp${spinstr%"$temp"}
+        sleep $delay
+        printf "\b\b\b\b\b\b"
+    done
+    printf "    \b\b\b\b"
 }

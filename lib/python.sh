@@ -1,69 +1,52 @@
 #!/usr/bin/env bash
-# Python installation and dependencies
+# Python installation and dependency management
 
-source "$(dirname "${BASH_SOURCE[0]}")/core.sh"
+install_python_linux() {
+    sudo apt-get update -qq
+    sudo apt-get install -y python3 python3-pip python3-venv
+}
+
+install_python_macos() {
+    if check_command brew; then
+        brew install python
+    else
+        die "Homebrew required for macOS Python installation"
+    fi
+}
 
 install_python() {
     if check_command python3; then
-        success "Python3 is already installed"
+        success "Python3 already installed"
         return 0
     fi
     
     log "Installing Python3..."
-    local os="$(detect_os)"
+    local os
+    os=$(detect_os)
     
     case "$os" in
-        ubuntu|debian)
-            sudo apt-get update
-            sudo apt-get install -y python3 python3-pip
-            ;;
-        macos)
-            if check_command brew; then
-                brew install python
-            else
-                error "Please install Homebrew first"
-                return 1
-            fi
-            ;;
-        *)
-            error "Unsupported OS for Python installation: $os"
-            return 1
-            ;;
+        ubuntu|debian) install_python_linux ;;
+        macos) install_python_macos ;;
+        *) die "Unsupported OS: $os" ;;
     esac
 }
 
 install_python_deps() {
     log "Installing Python dependencies..."
     
-    # Ensure python3 is available
-    install_python || return 1
+    # Check if jinja2 is installed
+    if python3 -c "import jinja2" 2>/dev/null; then
+        success "jinja2 already installed"
+        return 0
+    fi
     
     # Install jinja2
-    if ! python3 -c "import jinja2" 2>/dev/null; then
-        log "Installing jinja2..."
-        python3 -m pip install --user jinja2
-    else
-        success "jinja2 is already installed"
-    fi
+    python3 -m pip install --user jinja2 || \
+        python3 -m pip install jinja2
+    
+    success "Python dependencies installed"
 }
 
 verify_python() {
-    local all_good=true
-    
-    if ! check_command python3; then
-        error "Python3 not found"
-        all_good=false
-    fi
-    
-    if ! python3 -c "import jinja2" 2>/dev/null; then
-        error "jinja2 not available"
-        all_good=false
-    fi
-    
-    if [[ "$all_good" == "true" ]]; then
-        success "Python dependencies verified"
-        return 0
-    else
-        return 1
-    fi
+    check_command python3 && python3 -c "import jinja2" 2>/dev/null
 }

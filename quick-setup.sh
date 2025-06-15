@@ -1,50 +1,37 @@
 #!/usr/bin/env bash
 # One-command setup for Cursor Copilot Proxy
-# Usage: curl -sSL https://raw.githubusercontent.com/nghyane/cursor-copilot-proxy/main/quick-setup.sh | bash
 
-set -e
+set -euo pipefail
 
-# Configuration
-PROJECT_NAME="cursor-copilot-proxy"
-REPO_URL="https://github.com/nghyane/cursor-copilot-proxy.git"
+readonly PROJECT_NAME="cursor-copilot-proxy"
+readonly REPO_URL="https://github.com/nghyane/cursor-copilot-proxy.git"
 
 # Determine script directory
 if [[ -f "lib/core.sh" ]]; then
-    # Running from project directory
     SCRIPT_DIR="$(pwd)"
 else
-    # Running from curl, need to clone first
     SCRIPT_DIR=""
 fi
 
-LIB_DIR="$SCRIPT_DIR/lib"
+readonly LIB_DIR="$SCRIPT_DIR/lib"
 
-# Basic logging for initial setup (before lib is available)
-basic_log() { echo "🔧 $1"; }
-basic_success() { echo "✅ $1"; }
-basic_warn() { echo "⚠️ $1"; }
-basic_error() { echo "❌ $1"; }
+# Basic logging for initial setup
+basic_log() { echo "🔧 $*"; }
+basic_success() { echo "✅ $*"; }
+basic_error() { echo "❌ $*"; }
 
 setup_project() {
     basic_log "Setting up project..."
     
     if [[ ! -d "$PROJECT_NAME" ]]; then
-        basic_log "Cloning project..."
         git clone "$REPO_URL" "$PROJECT_NAME"
     else
-        basic_log "Updating existing project..."
         cd "$PROJECT_NAME"
-        if [[ -d ".git" ]]; then
-            git pull origin main || {
-                basic_warn "Git pull failed, continuing with existing code"
-            }
-        fi
+        [[ -d ".git" ]] && git pull origin main || true
         cd ..
     fi
     
     cd "$PROJECT_NAME"
-    SCRIPT_DIR="$(pwd)"
-    LIB_DIR="$SCRIPT_DIR/lib"
     basic_success "Project ready"
 }
 
@@ -53,43 +40,24 @@ main() {
     basic_success "🚀 Cursor Copilot Proxy - Quick Setup"
     echo ""
     
-    # Setup project if not in project directory
-    if [[ ! -f "lib/core.sh" ]]; then
-        setup_project
-    fi
+    # Setup project if needed
+    [[ ! -f "lib/core.sh" ]] && setup_project
     
-    # Load all library functions
-    source "$LIB_DIR/core.sh"
-    source "$LIB_DIR/docker.sh"
-    source "$LIB_DIR/python.sh"
-    source "$LIB_DIR/tokens.sh"
-    source "$LIB_DIR/services.sh"
+    # Load all libraries
+    for lib in core docker python tokens services; do
+        source "$LIB_DIR/$lib.sh"
+    done
     
-    # Install dependencies
-    log "Installing dependencies..."
-    if [[ -f "setup.sh" ]]; then
-        chmod +x setup.sh
-        ./setup.sh
-    else
-        error "setup.sh not found!"
-        exit 1
-    fi
+    # Run setup
+    ./setup.sh
     
-    # Setup tokens if not exists
-    if ! check_tokens; then
-        setup_tokens
-    else
-        info "Using existing tokens.json"
-    fi
+    # Setup tokens
+    check_tokens || setup_tokens
     
-    # Generate config and start services
-    generate_config || exit 1
-    start_services
+    # Start services
+    generate_config && start_services
     show_status
 }
 
-# Handle script interruption
 trap 'basic_error "Setup interrupted"; exit 1' INT TERM
-
-# Run main function
 main "$@"
