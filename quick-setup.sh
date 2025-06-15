@@ -4,7 +4,7 @@
 
 set -e
 
-PROJECT_NAME="copilot-compose-traefik"
+PROJECT_NAME="cursor-copilot-proxy"
 REPO_URL="https://github.com/nghyane/cursor-copilot-proxy.git"
 
 echo "🚀 Starting one-command setup for Copilot API Load-Balanced with Traefik..."
@@ -14,8 +14,27 @@ if [ ! -d "$PROJECT_NAME" ]; then
     echo "📥 Cloning project..."
     git clone "$REPO_URL"
 else
-    echo "📂 Updating existing project..."
-    cd "$PROJECT_NAME" && git pull && cd ..
+    echo "📂 Project directory exists."
+    if [ -d "$PROJECT_NAME/.git" ]; then
+        cd "$PROJECT_NAME"
+        current_remote=$(git config --get remote.origin.url)
+        if [ "$current_remote" = "$REPO_URL" ]; then
+            echo "🔄 Pulling latest changes..."
+            if ! git pull; then
+                echo "❌ Git pull failed. Please resolve conflicts or check your network."
+                exit 1
+            fi
+        else
+            echo "⚠️ Existing repo has a different remote: $current_remote"
+            echo "   Please backup and remove $PROJECT_NAME, then rerun this script."
+            exit 1
+        fi
+        cd ..
+    else
+        echo "⚠️ $PROJECT_NAME exists but is not a git repository."
+        echo "   Please backup and remove $PROJECT_NAME, then rerun this script."
+        exit 1
+    fi
 fi
 
 cd "$PROJECT_NAME"
