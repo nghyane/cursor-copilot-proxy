@@ -11,12 +11,39 @@ and balances them automatically using **Traefik** reverse proxy.
 
 ## 🚀 Quick Start
 
-### 1. Setup Dependencies
+### Option 1: One-Command Setup (Recommended)
+For the fastest setup, run this single command:
+```bash
+curl -sSL https://raw.githubusercontent.com/nghyane/cursor-copilot-proxy/main/quick-setup.sh | bash
+```
+
+This will:
+1. Clone the project
+2. Set proper file permissions
+3. Install all dependencies
+4. Guide you through token configuration
+5. Start the containers
+
+### Option 2: Manual Setup
+
+#### 1. Clone Project
+```bash
+git clone https://github.com/nghyane/cursor-copilot-proxy.git
+cd copilot-compose-traefik
+```
+
+#### 2. Set File Permissions
+```bash
+chmod +x setup.sh      # Make setup script executable
+chmod +x generate.py   # Make generator script executable
+```
+
+#### 3. Setup Dependencies
 ```bash
 ./setup.sh            # Auto-detect OS and install dependencies
 ```
 
-### 2. Configure Tokens
+#### 4. Configure Tokens
 Edit `tokens.json.example` and save as `tokens.json`:
 ```json
 [
@@ -31,7 +58,7 @@ Edit `tokens.json.example` and save as `tokens.json`:
 ]
 ```
 
-### 3. Generate & Run
+#### 5. Generate & Run
 ```bash
 python3 generate.py   # Generate docker-compose.yaml from template
 docker compose up -d  # Start containers with Traefik
