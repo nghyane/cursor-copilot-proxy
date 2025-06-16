@@ -17,7 +17,6 @@ services:
       - "--entrypoints.web.address=:80"
       - "--log.level=INFO"
       - "--accesslog=true"
-      - "--core.defaultRuleSyntax=v3"
     ports:
       - "80:80"
       - "8080:8080"
@@ -35,8 +34,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.services.{{ s.name }}.loadbalancer.server.port=4141"
-      - "traefik.docker.network=traefik-net"
-# Không có router riêng - sẽ dùng file config để load balance
+      # Không có router riêng - sẽ dùng file config để load balance
     networks: [traefik-net]
     restart: unless-stopped
 

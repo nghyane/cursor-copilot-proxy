@@ -16,11 +16,23 @@ with open(os.path.join(BASE_DIR, "tokens.json")) as f:
 
 # Prompt domains
 default_domains = ["test.localhost", "cookora.local"]
-domains_input = input(f"🌐 Enter domains (comma-separated) [default: {', '.join(default_domains)}]: ").strip()
-domains = [d.strip() for d in (domains_input.split(",") if domains_input else default_domains)]
+print("🌐 Domain options:")
+print("1. Enter specific domains (comma-separated)")
+print("2. Use catch-all (accepts any domain) - recommended for Cloudflare")
+print("3. Use default test domains")
 
-# Generate rule with Traefik v3 syntax
-rule = " || ".join([f"Host(`{d}`)" for d in domains])
+choice = input("Choose option [1/2/3] (default: 3): ").strip()
+
+if choice == "1":
+    domains_input = input("Enter domains (comma-separated): ").strip()
+    domains = [d.strip() for d in domains_input.split(",") if d.strip()]
+    rule = " || ".join([f"Host(`{d}`)" for d in domains])
+elif choice == "2":
+    rule = "PathPrefix(`/`)"
+    domains = ["any domain (catch-all)"]
+else:
+    domains = default_domains
+    rule = " || ".join([f"Host(`{d}`)" for d in domains])
 
 # Setup Jinja2 environment
 env = Environment(loader=FileSystemLoader(os.path.join(BASE_DIR, "templates")))
@@ -36,6 +48,7 @@ os.makedirs(os.path.join(BASE_DIR, "traefik"), exist_ok=True)
 with open(os.path.join(BASE_DIR, "traefik/rr.yml"), "w") as f:
     f.write(rr_tpl.render(services=services, rule=rule))
 
-print(f"✅ Generated docker-compose.yaml and traefik/rr.yml (HTTP only - SSL handled by Cloudflare)")
+print(f"✅ Generated docker-compose.yaml and traefik/rr.yml")
 print(f"📋 Rule: {rule}")
-print("💡 Note: HTTPS/SSL is handled by Cloudflare proxy")
+print(f"🌐 Domains: {', '.join(domains)}")
+print("💡 Note: HTTPS/SSL should be handled by Cloudflare proxy")
