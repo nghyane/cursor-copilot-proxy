@@ -28,7 +28,7 @@ if choice == "1":
     domains = [d.strip() for d in domains_input.split(",") if d.strip()]
     rule = " || ".join([f"Host(`{d}`)" for d in domains])
 elif choice == "2":
-    rule = "PathPrefix(`/`)"
+    rule = "PathPrefix(`/`) || HostRegexp(`{host:.*}`)"
     domains = ["any domain (catch-all)"]
 else:
     domains = default_domains
