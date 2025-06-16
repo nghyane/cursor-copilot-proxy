@@ -1,5 +1,6 @@
 networks:
   traefik-net:
+    name: traefik-net
     driver: bridge
 
 services:
@@ -33,7 +34,6 @@ services:
       - GH_TOKEN={{ s.token }}
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=traefik-net"
       - "traefik.http.services.{{ s.name }}.loadbalancer.server.port=4141"
       # Không có router riêng - sẽ dùng file config để load balance
     networks: [traefik-net]
